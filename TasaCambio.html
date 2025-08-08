@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Convertidor COP ↔ USD</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f4f8;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      background-color: #2d89ef;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #1b61c1;
+    }
+    .result {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Convertidor COP/USD</h2>
+    <input type="text" id="amount" placeholder="Cantidad" oninput="formatInput(this)" />
+    <select id="direction">
+      <option value="copToUsd">COP → USD</option>
+      <option value="usdToCop">USD → COP</option>
+    </select>
+    <button onclick="convert()">Convertir</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const rateCopToUsd = 0.00025;
+    const rateUsdToCop = 4000;
+
+    function formatNumber(num) {
+      return num.toLocaleString('en-US');
+    }
+
+    function parseFormattedNumber(value) {
+      return parseFloat(value.replace(/[^0-9.]/g, ''));
+    }
+
+    function formatInput(input) {
+      let val = input.value.replace(/[^0-9]/g, '');
+      if (val !== '') {
+        let formatted = Number(val).toLocaleString('en-US');
+        input.value = formatted;
+      } else {
+        input.value = '';
+      }
+    }
+
+    function convert() {
+      const rawValue = document.getElementById("amount").value;
+      const amount = parseFormattedNumber(rawValue);
+      const direction = document.getElementById("direction").value;
+      const resultElement = document.getElementById("result");
+
+      if (isNaN(amount) || amount <= 0) {
+        resultElement.textContent = "Ingresa una cantidad válida.";
+        return;
+      }
+
+      let result;
+      if (direction === "copToUsd") {
+        result = amount * rateCopToUsd;
+        resultElement.textContent = `${formatNumber(amount)} COP ≈ $${result.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
+      } else {
+        result = amount * rateUsdToCop;
+        resultElement.textContent = `$${formatNumber(amount)} USD ≈ ${formatNumber(result)} COP`;
+      }
+    }
+  </script>
+</body>
+</html>
