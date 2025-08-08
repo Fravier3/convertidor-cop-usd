@@ -4,6 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Convertidor COP ↔ USD</title>
+
+  <!-- Ícono de app para iPhone -->
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <!-- Estilo de barra de estado y nombre en pantalla de inicio -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Convertidor">
+
+  <!-- Manifest para apariencia de app -->
+  <link rel="manifest" href="manifest.json">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -54,6 +66,7 @@
 </head>
 <body>
   <div class="container">
+    <img src="icon.png" alt="Logo" style="max-width: 80px; display: block; margin: 0 auto 20px;" />
     <h2>Convertidor COP/USD</h2>
     <input type="text" id="amount" placeholder="Cantidad" oninput="formatInput(this)" />
     <select id="direction">
