@@ -1,0 +1,15 @@
+{
+  "name": "Convertidor COP/USD",
+  "short_name": "Convertidor",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f2f4f8",
+  "theme_color": "#2d89ef",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
