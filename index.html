@@ -78,47 +78,66 @@
   </div>
 
   <script>
-    const rateCopToUsd = 0.00025;
-    const rateUsdToCop = 4000;
+  let rateCopToUsd = 0.00025;
+  let rateUsdToCop = 4000;
 
-    function formatNumber(num) {
-      return num.toLocaleString('en-US');
+  // 🔄 Obtener tasa de cambio actual automáticamente
+  async function getLiveRate() {
+    try {
+      const res = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+      const data = await res.json();
+      // Actualiza las tasas dinámicamente
+      rateUsdToCop = data.rates.COP;
+      rateCopToUsd = 1 / rateUsdToCop;
+      console.log(`Tasa actualizada: 1 USD = ${rateUsdToCop} COP`);
+    } catch (error) {
+      console.error("Error al obtener la tasa actual:", error);
+    }
+  }
+
+  // Llama la función al cargar la página
+  getLiveRate();
+
+  function formatNumber(num) {
+    return num.toLocaleString('en-US');
+  }
+
+  function parseFormattedNumber(value) {
+    return parseFloat(value.replace(/[^0-9.]/g, ''));
+  }
+
+  function formatInput(input) {
+    let val = input.value.replace(/[^0-9]/g, '');
+    if (val !== '') {
+      let formatted = Number(val).toLocaleString('en-US');
+      input.value = formatted;
+    } else {
+      input.value = '';
+    }
+  }
+
+  function convert() {
+    const rawValue = document.getElementById("amount").value;
+    const amount = parseFormattedNumber(rawValue);
+    const direction = document.getElementById("direction").value;
+    const resultElement = document.getElementById("result");
+
+    if (isNaN(amount) || amount <= 0) {
+      resultElement.textContent = "Ingresa una cantidad válida.";
+      return;
     }
 
-    function parseFormattedNumber(value) {
-      return parseFloat(value.replace(/[^0-9.]/g, ''));
+    let result;
+    if (direction === "copToUsd") {
+      result = amount * rateCopToUsd;
+      resultElement.textContent = `${formatNumber(amount)} COP ≈ $${result.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
+    } else {
+      result = amount * rateUsdToCop;
+      resultElement.textContent = `$${formatNumber(amount)} USD ≈ ${formatNumber(result)} COP`;
     }
+  }
+</script>
 
-    function formatInput(input) {
-      let val = input.value.replace(/[^0-9]/g, '');
-      if (val !== '') {
-        let formatted = Number(val).toLocaleString('en-US');
-        input.value = formatted;
-      } else {
-        input.value = '';
-      }
-    }
-
-    function convert() {
-      const rawValue = document.getElementById("amount").value;
-      const amount = parseFormattedNumber(rawValue);
-      const direction = document.getElementById("direction").value;
-      const resultElement = document.getElementById("result");
-
-      if (isNaN(amount) || amount <= 0) {
-        resultElement.textContent = "Ingresa una cantidad válida.";
-        return;
-      }
-
-      let result;
-      if (direction === "copToUsd") {
-        result = amount * rateCopToUsd;
-        resultElement.textContent = `${formatNumber(amount)} COP ≈ $${result.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
-      } else {
-        result = amount * rateUsdToCop;
-        resultElement.textContent = `$${formatNumber(amount)} USD ≈ ${formatNumber(result)} COP`;
-      }
-    }
-  </script>
 </body>
 </html>
+
