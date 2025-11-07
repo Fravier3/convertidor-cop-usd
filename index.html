@@ -35,8 +35,14 @@
     }
     h2 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 5px;
       color: #333;
+    }
+    .rate-info {
+      text-align: center;
+      color: #555;
+      font-size: 14px;
+      margin-bottom: 20px;
     }
     input, select, button {
       width: 100%;
@@ -68,6 +74,8 @@
   <div class="container">
     <img src="icon.png" alt="Logo" style="max-width: 80px; display: block; margin: 0 auto 20px;" />
     <h2>Convertidor COP/USD</h2>
+    <div class="rate-info" id="rateInfo">💱 Cargando tasa...</div>
+
     <input type="text" id="amount" placeholder="Cantidad" oninput="formatInput(this)" />
     <select id="direction">
       <option value="copToUsd">COP → USD</option>
@@ -86,12 +94,13 @@
     try {
       const res = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
       const data = await res.json();
-      // Actualiza las tasas dinámicamente
       rateUsdToCop = data.rates.COP;
       rateCopToUsd = 1 / rateUsdToCop;
       console.log(`Tasa actualizada: 1 USD = ${rateUsdToCop} COP`);
+      document.getElementById("rateInfo").textContent = `💱 1 USD = ${rateUsdToCop.toLocaleString('en-US', {maximumFractionDigits: 2})} COP`;
     } catch (error) {
       console.error("Error al obtener la tasa actual:", error);
+      document.getElementById("rateInfo").textContent = "💱 1 USD = 4,000 COP (valor por defecto)";
     }
   }
 
@@ -140,4 +149,3 @@
 
 </body>
 </html>
-
