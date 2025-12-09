@@ -44,7 +44,7 @@
       font-size: 14px;
       margin-bottom: 20px;
     }
-    input, select, button {
+    input, button {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
@@ -62,6 +62,13 @@
     button:hover {
       background-color: #1b61c1;
     }
+    .toggle-btn {
+      background-color: #e0e0e0;
+      color: #333;
+    }
+    .toggle-btn:hover {
+      background-color: #ccc;
+    }
     .result {
       margin-top: 15px;
       font-weight: bold;
@@ -77,10 +84,9 @@
     <div class="rate-info" id="rateInfo">💱 Cargando tasa...</div>
 
     <input type="text" id="amount" placeholder="Cantidad" oninput="formatInput(this)" />
-    <select id="direction">
-      <option value="copToUsd">COP → USD</option>
-      <option value="usdToCop">USD → COP</option>
-    </select>
+    <!-- 🔄 Botón que cambia dirección -->
+    <button class="toggle-btn" id="directionBtn" onclick="toggleDirection()">COP → USD</button>
+
     <button onclick="convert()">Convertir</button>
     <div class="result" id="result"></div>
   </div>
@@ -88,6 +94,7 @@
   <script>
   let rateCopToUsd = 0.00025;
   let rateUsdToCop = 4000;
+  let direction = "copToUsd"; // Valor inicial
 
   // 🔄 Obtener tasa de cambio actual automáticamente
   async function getLiveRate() {
@@ -125,10 +132,20 @@
     }
   }
 
+  // 🔁 Cambiar dirección al hacer clic
+  function toggleDirection() {
+    if (direction === "copToUsd") {
+      direction = "usdToCop";
+      document.getElementById("directionBtn").textContent = "USD → COP";
+    } else {
+      direction = "copToUsd";
+      document.getElementById("directionBtn").textContent = "COP → USD";
+    }
+  }
+
   function convert() {
     const rawValue = document.getElementById("amount").value;
     const amount = parseFormattedNumber(rawValue);
-    const direction = document.getElementById("direction").value;
     const resultElement = document.getElementById("result");
 
     if (isNaN(amount) || amount <= 0) {
