@@ -2,93 +2,313 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
   <title>Convertidor COP ↔ USD</title>
 
-  <!-- Ícono de app para iPhone -->
   <link rel="apple-touch-icon" href="icon.png">
-
-  <!-- Estilo de barra de estado y nombre en pantalla de inicio -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Convertidor">
-
-  <!-- Manifest para apariencia de app -->
+  <meta name="theme-color" content="#2c1e63">
   <link rel="manifest" href="manifest.json">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
+    :root{
+      --violet: #4c3bcf;
+      --magenta: #e8447e;
+      --cyan: #17d9c4;
+      --ink: #120f1f;
+      --card: rgba(18, 14, 33, 0.52);
+      --card-border: rgba(255,255,255,0.14);
+      --text: #f7f5ff;
+      --dim: #c3bde0;
+      --cop: #ff7fb0;
+      --usd: #4be9d6;
+      --font: "Plus Jakarta Sans", system-ui, sans-serif;
+    }
+
+    *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body{ height: 100%; }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f2f4f8;
       margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      padding: max(24px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+      background: var(--ink);
+      overflow: hidden;
+      position: relative;
     }
-    .container {
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      width: 300px;
+
+    /* ---- Fondo animado tipo mesh gradient ---- */
+    .bg-blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.75;
+      z-index: 0;
+      will-change: transform;
     }
-    h2 {
-      text-align: center;
-      margin-bottom: 5px;
-      color: #333;
+    .bg-blob.b1 {
+      width: 340px; height: 340px;
+      background: var(--violet);
+      top: -80px; left: -60px;
+      animation: float1 14s ease-in-out infinite;
     }
-    .rate-info {
-      text-align: center;
-      color: #555;
-      font-size: 14px;
-      margin-bottom: 20px;
+    .bg-blob.b2 {
+      width: 300px; height: 300px;
+      background: var(--magenta);
+      bottom: -70px; right: -60px;
+      animation: float2 16s ease-in-out infinite;
     }
-    input, button {
+    .bg-blob.b3 {
+      width: 260px; height: 260px;
+      background: var(--cyan);
+      bottom: 10%; left: -80px;
+      opacity: 0.5;
+      animation: float3 18s ease-in-out infinite;
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(40px, 30px) scale(1.1); }
+    }
+    @keyframes float2 {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(-30px, -40px) scale(1.15); }
+    }
+    @keyframes float3 {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(30px, -20px) scale(0.9); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bg-blob { animation: none !important; }
+    }
+
+    /* ---- Tarjeta glass ---- */
+    .card {
+      position: relative;
+      z-index: 1;
       width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
+      max-width: 360px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border-radius: 28px;
+      padding: 26px 24px 22px;
+      box-shadow:
+        0 20px 60px -20px rgba(76, 59, 207, 0.55),
+        0 0 0 1px rgba(255,255,255,0.03) inset;
     }
-    button {
-      background-color: #2d89ef;
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: background 0.3s;
+
+    .live-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
     }
-    button:hover {
-      background-color: #1b61c1;
+
+    .pulse-dot {
+      position: relative;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--usd);
+      flex-shrink: 0;
     }
-    .toggle-btn {
-      background-color: #e0e0e0;
-      color: #333;
+    .pulse-dot::after {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      background: var(--usd);
+      opacity: 0.5;
+      animation: pulse 1.8s ease-out infinite;
     }
-    .toggle-btn:hover {
-      background-color: #ccc;
+    .pulse-dot.stale { background: var(--dim); }
+    .pulse-dot.stale::after { background: var(--dim); animation: none; opacity: 0; }
+
+    @keyframes pulse {
+      0% { transform: scale(0.6); opacity: 0.5; }
+      100% { transform: scale(2); opacity: 0; }
     }
-    .result {
-      margin-top: 15px;
-      font-weight: bold;
+
+    .live-label {
+      font-size: 12.5px;
+      color: var(--dim);
+      font-weight: 500;
+    }
+
+    .rate-info {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
       text-align: center;
-      color: #222;
+      background: linear-gradient(100deg, var(--usd), var(--magenta) 70%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 20px;
+      font-variant-numeric: tabular-nums;
+      word-break: break-word;
+    }
+    .rate-info .unit {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--dim);
+      background: none;
+      -webkit-text-fill-color: var(--dim);
+      margin-top: 2px;
+    }
+
+    .toggle-btn {
+      appearance: none;
+      width: 100%;
+      border: none;
+      background: linear-gradient(120deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+      color: var(--text);
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-family: var(--font);
+      font-weight: 700;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      margin-bottom: 18px;
+      transition: transform 0.15s cubic-bezier(.34,1.56,.64,1), background 0.2s ease;
+    }
+    .toggle-btn:active { transform: scale(0.96); }
+    .toggle-btn .arrow {
+      display: inline-flex;
+      transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
+      color: var(--cop);
+    }
+    .toggle-btn.flipped .arrow { transform: rotate(180deg); color: var(--usd); }
+
+    label.field-label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--dim);
+      margin-bottom: 8px;
+    }
+
+    input#amount {
+      width: 100%;
+      padding: 15px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.06);
+      font-family: var(--font);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 18px;
+      font-variant-numeric: tabular-nums;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    input#amount::placeholder { color: rgba(247,245,255,0.35); font-weight: 500; }
+    input#amount:focus {
+      outline: none;
+      border-color: var(--usd);
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 0 0 4px rgba(75,233,214,0.18);
+    }
+
+    button.convert-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(120deg, var(--magenta), var(--violet) 60%, var(--usd));
+      background-size: 200% 100%;
+      background-position: 0% 0%;
+      color: #fff;
+      font-family: var(--font);
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.15s cubic-bezier(.34,1.56,.64,1), background-position 0.4s ease;
+      box-shadow: 0 12px 26px -10px rgba(232, 68, 126, 0.55);
+    }
+    button.convert-btn:hover { background-position: 100% 0%; }
+    button.convert-btn:active { transform: scale(0.97); }
+
+    .result {
+      margin-top: 20px;
+      min-height: 30px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-word;
+      opacity: 0;
+      transform: translateY(6px) scale(0.98);
+    }
+    .result.pop {
+      animation: resultIn 0.35s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+    @keyframes resultIn {
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .foot {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--dim);
+      opacity: 0.7;
+    }
+
+    @media (max-width: 360px){
+      .card { max-width: 100%; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="icon.png" alt="Logo" style="max-width: 80px; display: block; margin: 0 auto 20px;" />
-    <h2>Convertidor COP/USD</h2>
-    <div class="rate-info" id="rateInfo">💱 Cargando tasa...</div>
+  <div class="bg-blob b1"></div>
+  <div class="bg-blob b2"></div>
+  <div class="bg-blob b3"></div>
 
-    <input type="text" id="amount" placeholder="Cantidad" oninput="formatInput(this)" />
-    <!-- 🔄 Botón que cambia dirección -->
-    <button class="toggle-btn" id="directionBtn" onclick="toggleDirection()">COP → USD</button>
+  <div class="card">
+    <div class="live-row">
+      <span class="pulse-dot" id="liveDot"></span>
+      <span class="live-label">Tasa en vivo · USD/COP</span>
+    </div>
 
-    <button onclick="convert()">Convertir</button>
+    <div class="rate-info" id="rateInfo">Cargando tasa...</div>
+
+    <button class="toggle-btn" id="directionBtn" onclick="toggleDirection()">
+      <span>COP → USD</span>
+      <span class="arrow">⇄</span>
+    </button>
+
+    <label class="field-label" for="amount">CANTIDAD</label>
+    <input type="text" id="amount" placeholder="0" oninput="formatInput(this)" inputmode="numeric" />
+
+    <button class="convert-btn" onclick="convert()">Convertir</button>
+
     <div class="result" id="result"></div>
+
+    <div class="foot">Fran's Dev</div>
   </div>
 
   <script>
@@ -99,15 +319,18 @@
   // 🔄 Obtener tasa de cambio actual automáticamente
   async function getLiveRate() {
     try {
-      const res = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+      const res = await fetch("https://api.frankfurter.dev/v2/rate/USD/COP");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      rateUsdToCop = data.rates.COP;
+      rateUsdToCop = data.rate;
       rateCopToUsd = 1 / rateUsdToCop;
       console.log(`Tasa actualizada: 1 USD = ${rateUsdToCop} COP`);
-      document.getElementById("rateInfo").textContent = `💱 1 USD = ${rateUsdToCop.toLocaleString('en-US', {maximumFractionDigits: 2})} COP`;
+      document.getElementById("rateInfo").innerHTML = `${rateUsdToCop.toLocaleString('en-US', {maximumFractionDigits: 2})}<span class="unit">COP por 1 USD</span>`;
+      document.getElementById("liveDot").classList.remove("stale");
     } catch (error) {
       console.error("Error al obtener la tasa actual:", error);
-      document.getElementById("rateInfo").textContent = "💱 1 USD = 4,000 COP (valor por defecto)";
+      document.getElementById("rateInfo").innerHTML = `4,000<span class="unit">COP por 1 USD (valor por defecto)</span>`;
+      document.getElementById("liveDot").classList.add("stale");
     }
   }
 
@@ -134,13 +357,15 @@
 
   // 🔁 Cambiar dirección al hacer clic
   function toggleDirection() {
+    const btn = document.getElementById("directionBtn");
     if (direction === "copToUsd") {
       direction = "usdToCop";
-      document.getElementById("directionBtn").textContent = "USD → COP";
+      btn.querySelector("span").textContent = "USD → COP";
     } else {
       direction = "copToUsd";
-      document.getElementById("directionBtn").textContent = "COP → USD";
+      btn.querySelector("span").textContent = "COP → USD";
     }
+    btn.classList.toggle("flipped");
   }
 
   function convert() {
@@ -150,6 +375,9 @@
 
     if (isNaN(amount) || amount <= 0) {
       resultElement.textContent = "Ingresa una cantidad válida.";
+      resultElement.classList.remove("pop");
+      void resultElement.offsetWidth;
+      resultElement.classList.add("pop");
       return;
     }
 
@@ -161,6 +389,9 @@
       result = amount * rateUsdToCop;
       resultElement.textContent = `$${formatNumber(amount)} USD ≈ ${formatNumber(result)} COP`;
     }
+    resultElement.classList.remove("pop");
+    void resultElement.offsetWidth;
+    resultElement.classList.add("pop");
   }
 </script>
 
